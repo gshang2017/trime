@@ -46,6 +46,7 @@ include(OpenccWorkarounds)
 include(RimePlugins)
 
 option(BUILD_TEST "" OFF)
+option(ENABLE_LOGGING "" OFF)
 include_directories(
     PRIVATE "${CMAKE_CURRENT_SOURCE_DIR}/librime/include"
     PRIVATE "${CMAKE_CURRENT_BINARY_DIR}/librime/deps/glog"
