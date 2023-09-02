@@ -65,14 +65,14 @@ fun buildInfo(): String {
 android {
     namespace = "com.osfans.trime"
     compileSdk = 33
-    ndkVersion = "24.0.8215888"
+    ndkVersion = "25.2.9519653"
 
     defaultConfig {
         applicationId  = "com.osfans.trime"
         minSdk = 21
         targetSdk = 33
-        versionCode = 20230820
-        versionName = "3.2.13.2"
+        versionCode = 20230902
+        versionName = "3.2.14.1"
 
         multiDexEnabled = true
         setProperty("archivesBaseName", "trime-$versionName")
@@ -131,7 +131,7 @@ android {
         sourceCompatibility = JavaVersion.VERSION_1_8
         targetCompatibility = JavaVersion.VERSION_1_8
     }
-    
+
     kotlinOptions {
         jvmTarget = "1.8"
     }
