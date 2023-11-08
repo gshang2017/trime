@@ -71,9 +71,8 @@ android {
         applicationId  = "com.osfans.trime"
         minSdk = 21
         targetSdk = 33
-        versionCode = 20230902
-        versionName = "3.2.14.1"
-
+        versionCode = 20231108
+        versionName = "3.2.15.1"
         multiDexEnabled = true
         setProperty("archivesBaseName", "trime-$versionName")
         buildConfigField("String", "BUILD_GIT_HASH", "\"${gitHashShort}\"")
