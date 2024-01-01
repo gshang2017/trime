@@ -1,4 +1,4 @@
-cmake_minimum_required (VERSION 3.10.0)
+cmake_minimum_required(VERSION 3.18.0)
 
 project(trime-lib VERSION 3.0.0)
 
@@ -10,13 +10,14 @@ set(CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/cmake" ${CMAKE_MODULE_PATH})
 # general options
 option(BUILD_SHARED_LIBS "" OFF)
 option(BUILD_TESTING "" OFF)
+option(ENABLE_LOGGING "" OFF)
 
 # iconv for Boost::locale
 include(Iconv)
 # workaround for boost install
 install(TARGETS iconv EXPORT boost_locale-targets)
 
-add_subdirectory(boost)
+include(Boost)
 
 option(WITH_GFLAGS "Use gflags" OFF)
 option(WITH_GTEST "Use googletest" OFF)
@@ -40,24 +41,16 @@ option(LEVELDB_BUILD_BENCHMARKS "" OFF)
 option(LEVELDB_INSTALL "" OFF)
 add_subdirectory(librime/deps/leveldb)
 
+add_subdirectory(librime/deps/marisa-trie)
+
+set(LIBMARISA marisa)
+option(USE_SYSTEM_MARISA "" ON)
 add_subdirectory(OpenCC)
 include(OpenccWorkarounds)
 
-include(RimePlugins)
+set(X11Keysym "${CMAKE_SOURCE_DIR}/librime/include")
+include_directories("${X11Keysym}")
 
-option(BUILD_TEST "" OFF)
-option(ENABLE_LOGGING "" OFF)
-include_directories(
-    PRIVATE "${CMAKE_CURRENT_SOURCE_DIR}/librime/include"
-    PRIVATE "${CMAKE_CURRENT_BINARY_DIR}/librime/deps/glog"
-    PRIVATE "${CMAKE_CURRENT_SOURCE_DIR}/librime/deps/glog/src"
-)
-# workaround for librime/tools/rime_api_console.cc
-# TODO: fix it in upstream
-string(REPLACE "-Werror=format-security" "" CMAKE_CXX_FLAGS ${CMAKE_CXX_FLAGS})
-string(REPLACE "-Wformat" "" CMAKE_CXX_FLAGS ${CMAKE_CXX_FLAGS})
-add_definitions("-Wno-format")
-# workaround end
-add_subdirectory(librime)
+include(Rime)
 
 add_subdirectory(librime_jni)

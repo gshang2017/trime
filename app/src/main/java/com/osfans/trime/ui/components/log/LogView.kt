@@ -82,7 +82,7 @@ class LogView
             val color =
                 ContextCompat.getColor(
                     context,
-                    when (str.first()) {
+                    when (str.codePointAt(19).toChar()) {
                         'V' -> R.color.grey_700
                         'D' -> R.color.grey_700
                         'I' -> R.color.blue_500
@@ -104,5 +104,9 @@ class LogView
 
         fun clear() {
             logAdapter.clear()
+        }
+
+        fun scrollToBottom() {
+            recyclerView.scrollToPosition(logAdapter.itemCount - 1)
         }
     }

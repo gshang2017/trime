@@ -24,13 +24,16 @@ import com.osfans.trime.R
 import com.osfans.trime.core.Rime
 import com.osfans.trime.data.AppPrefs
 import com.osfans.trime.data.DataManager
+import com.osfans.trime.ime.core.RimeWrapper
 import com.osfans.trime.ui.components.FolderPickerPreference
 import com.osfans.trime.ui.components.PaddingPreferenceFragment
 import com.osfans.trime.ui.main.MainViewModel
 import com.osfans.trime.util.appContext
 import com.osfans.trime.util.formatDateTime
+import com.osfans.trime.util.rimeActionWithResultDialog
 import com.osfans.trime.util.withLoadingDialog
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import java.util.Calendar
 import java.util.concurrent.TimeUnit
@@ -69,10 +72,10 @@ class ProfileFragment :
                 registerDocumentTreeLauncher()
             }
             get<Preference>("profile_sync_user_data")?.setOnPreferenceClickListener {
-                lifecycleScope.withLoadingDialog(context, 200L, R.string.sync_progress) {
-                    withContext(Dispatchers.IO) {
+                lifecycleScope.launch {
+                    this@ProfileFragment.context?.rimeActionWithResultDialog("rime.trime", "W", 1) {
                         Rime.syncRimeUserData()
-                        Rime.deploy()
+                        RimeWrapper.deploy()
                     }
                 }
                 true

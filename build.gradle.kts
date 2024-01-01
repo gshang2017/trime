@@ -7,11 +7,14 @@
  */
 
 plugins {
-    id("com.android.application") version "8.0.2" apply false
-    id("com.android.library") version "8.0.2" apply false
-    kotlin("android") version Extra.kotlinVersion apply false
-    id("com.diffplug.spotless") version "6.22.0"
-    id("com.mikepenz.aboutlibraries.plugin") version "10.6.1" apply false
+    alias(libs.plugins.android.application) apply false
+    alias(libs.plugins.android.library) apply false
+    alias(libs.plugins.aboutlibraries) apply false
+    alias(libs.plugins.ksp) apply false
+    alias(libs.plugins.kotlin.jvm) apply false
+    alias(libs.plugins.kotlin.serialization) apply false
+    alias(libs.plugins.kotlin.android) apply false
+    alias(libs.plugins.spotless)
 }
 
 spotless {
@@ -19,7 +22,7 @@ spotless {
         importOrder()
         removeUnusedImports()
         target("app/src/main/java/com/osfans/trime/**/*.java")
-        googleJavaFormat("1.17.0")
+        googleJavaFormat("1.18.1")
     }
     kotlin {
         target("**/*.kt")

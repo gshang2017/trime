@@ -23,13 +23,14 @@ import com.osfans.trime.ime.core.Trime
 import com.osfans.trime.ime.enums.KeyCommandType
 import com.osfans.trime.ime.enums.SymbolKeyboardType
 import com.osfans.trime.ime.text.TextInputManager
+import com.osfans.trime.ime.util.UiUtil
 import com.osfans.trime.ui.main.LiquidKeyboardEditActivity
 import com.osfans.trime.util.dp2px
 import kotlinx.coroutines.launch
 import timber.log.Timber
 
 class LiquidKeyboard(private val context: Context) : ClipboardHelper.OnClipboardUpdateListener {
-    private val theme: Theme = Theme.get()
+    private lateinit var theme: Theme
     private val service: Trime = Trime.getService()
     private lateinit var keyboardView: RecyclerView
     private val symbolHistory = SymbolHistory(180)
@@ -68,6 +69,7 @@ class LiquidKeyboard(private val context: Context) : ClipboardHelper.OnClipboard
 
     fun select(i: Int): SymbolKeyboardType {
         val tag = TabManager.getTag(i)
+        theme = Theme.get(UiUtil.isDarkMode(context))
         symbolHistory.load()
         keyboardView.removeAllViews()
         when (tag.type) {
@@ -105,12 +107,10 @@ class LiquidKeyboard(private val context: Context) : ClipboardHelper.OnClipboard
                     if (tabTag.type === SymbolKeyboardType.SYMBOL) {
                         service.inputSymbol(bean.text)
                     } else if (tabTag.type !== SymbolKeyboardType.TABS) {
-                        service.currentInputConnection?.run {
-                            commitText(bean.text, 1)
-                            if (tabTag.type !== SymbolKeyboardType.HISTORY) {
-                                symbolHistory.insert(bean.text)
-                                symbolHistory.save()
-                            }
+                        service.commitText(bean.text)
+                        if (tabTag.type !== SymbolKeyboardType.HISTORY) {
+                            symbolHistory.insert(bean.text)
+                            symbolHistory.save()
                         }
                     } else {
                         val tag = TabManager.get().getTabSwitchTabTag(position)
@@ -162,7 +162,7 @@ class LiquidKeyboard(private val context: Context) : ClipboardHelper.OnClipboard
                 setListener(
                     object : FlexibleAdapter.Listener {
                         override fun onPaste(bean: DatabaseBean) {
-                            service.currentInputConnection?.commitText(bean.text, 1)
+                            service.commitText(bean.text)
                         }
 
                         override suspend fun onPin(bean: DatabaseBean) {
@@ -265,7 +265,7 @@ class LiquidKeyboard(private val context: Context) : ClipboardHelper.OnClipboard
         val candidateAdapter =
             CandidateAdapter(theme).apply {
                 setListener { position ->
-                    TextInputManager.getInstance().onCandidatePressed(position)
+                    TextInputManager.getInstance(UiUtil.isDarkMode(context)).onCandidatePressed(position)
                     if (Rime.isComposing) {
                         updateCandidates(Rime.candidatesWithoutSwitch.toList())
                         notifyDataSetChanged()

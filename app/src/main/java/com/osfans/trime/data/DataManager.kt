@@ -6,24 +6,19 @@ import com.osfans.trime.util.Const
 import timber.log.Timber
 import java.io.File
 
-object DataManager : DataDirectoryChangeListener.Listener {
+object DataManager {
+    private const val DEFAULT_CUSTOM_FILE_NAME = "default.custom.yaml"
     private val prefs get() = AppPrefs.defaultInstance()
 
     val defaultDataDirectory = File(PathUtils.getExternalStoragePath(), "rime")
 
     @JvmStatic
-    var sharedDataDir = File(prefs.profile.sharedDataDir)
+    val sharedDataDir
+        get() = File(prefs.profile.sharedDataDir)
 
     @JvmStatic
-    var userDataDir = File(prefs.profile.userDataDir)
-    val customDefault = File(sharedDataDir, "default.custom.yaml")
-
-    private val stagingDir = File(userDataDir, "build")
-    private val prebuiltDataDir = File(sharedDataDir, "build")
-
-    init {
-        DataDirectoryChangeListener.addDirectoryChangeListener(this)
-    }
+    val userDataDir
+        get() = File(prefs.profile.userDataDir)
 
     sealed class Diff {
         object New : Diff()
@@ -42,6 +37,9 @@ object DataManager : DataDirectoryChangeListener.Listener {
      */
     @JvmStatic
     fun resolveDeployedResourcePath(resourceId: String): String {
+        val stagingDir = File(userDataDir, "build")
+        val prebuiltDataDir = File(sharedDataDir, "build")
+
         val defaultPath = File(stagingDir, "$resourceId.yaml")
         if (!defaultPath.exists()) {
             val fallbackPath = File(prebuiltDataDir, "$resourceId.yaml")
@@ -63,7 +61,7 @@ object DataManager : DataDirectoryChangeListener.Listener {
 
     @JvmStatic
     fun sync() {
-        val newHash = Const.buildGitHash
+        val newHash = Const.buildCommitHash
         val oldHash = prefs.internal.lastBuildGitHash
 
         diff(oldHash, newHash).run {
@@ -84,19 +82,14 @@ object DataManager : DataDirectoryChangeListener.Listener {
         }
 
         // FIXME：缺失 default.custom.yaml 会导致方案列表为空
-        if (!customDefault.exists()) {
-            Timber.d("Creating empty default.custom.yaml ...")
-            customDefault.createNewFile()
+        with(File(sharedDataDir, DEFAULT_CUSTOM_FILE_NAME)) {
+            val customDefault = this
+            if (!customDefault.exists()) {
+                Timber.d("Creating empty default.custom.yaml ...")
+                customDefault.createNewFile()
+            }
         }
 
         Timber.i("Synced!")
-    }
-
-    /**
-     * Update sharedDataDir and userDataDir.
-     */
-    override fun onDataDirectoryChange() {
-        sharedDataDir = File(prefs.profile.sharedDataDir)
-        userDataDir = File(prefs.profile.userDataDir)
     }
 }
